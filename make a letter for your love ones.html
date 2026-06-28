@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>Letter for Your Loved One</title>
+	<style>
+		:root{--card-bg:#fffdf9;--accent:#c95a6d;--accent-2:#8a3257;--text:#2e2234;--muted:#6f6876;--border:#efd7dc;--shadow:0 20px 45px rgba(92,42,62,.16)}
+		*{box-sizing:border-box}
+		body{font-family:"Segoe UI", Inter, system-ui, Arial; margin:0; padding:24px; min-height:100vh; color:var(--text); background:radial-gradient(circle at top left, #fff4f6 0%, #ffe8f0 20%, #fffaf3 45%, #f7ecff 100%)}
+		body::before{content:""; position:fixed; inset:0; background:radial-gradient(circle at 20% 20%, rgba(255,182,193,.25), transparent 25%), radial-gradient(circle at 80% 10%, rgba(255,215,0,.15), transparent 20%), radial-gradient(circle at 70% 80%, rgba(221,160,221,.2), transparent 22%); pointer-events:none}
+		body::after{content:"✿ ✿ ✿"; position:fixed; top:18px; right:24px; font-size:24px; color:rgba(201,90,109,.45); letter-spacing:8px; pointer-events:none; z-index:0}
+		.container{width:min(1180px,100%);margin:0 auto;display:flex;gap:24px;align-items:flex-start;position:relative;z-index:1}
+		form{width:390px;background:rgba(255,255,255,.95);padding:22px;border-radius:22px;box-shadow:var(--shadow);border:1px solid rgba(201,90,109,.14);backdrop-filter:blur(12px);position:relative;overflow:hidden}
+		form::before{content:"❀"; position:absolute; top:10px; right:14px; font-size:22px; color:rgba(201,90,109,.25)}
+		form h2{margin:0 0 8px;font-size:28px;color:var(--accent-2);font-weight:800}
+		.form-intro{margin:0 0 14px;font-size:14px;color:var(--muted);line-height:1.6}
+		label{display:block;font-size:13px;color:#544b56;margin-top:12px;font-weight:700}
+		input[type=text], textarea, select{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:12px;margin-top:6px;box-sizing:border-box;background:#fff;transition:border-color .2s, box-shadow .2s}
+		input[type=text]:focus, textarea:focus, select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(201,90,109,.14)}
+		textarea{min-height:130px;resize:vertical}
+		.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+		button{background:linear-gradient(135deg,var(--accent),#e57a8c);color:#fff;border:none;padding:10px 15px;border-radius:999px;cursor:pointer;font-weight:700;box-shadow:0 8px 18px rgba(201,90,109,.25);transition:transform .2s, box-shadow .2s}
+		button:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(201,90,109,.3)}
+		button.secondary{background:#fff;color:var(--accent-2);border:1px solid var(--border);box-shadow:none}
+		.preview{flex:1;background:linear-gradient(145deg,#ffffff 0%,#fff8f8 100%);padding:24px;border-radius:24px;box-shadow:var(--shadow);border:1px solid rgba(201,90,109,.14);position:relative;overflow:hidden}
+		.preview::before{content:"✿"; position:absolute; top:14px; left:18px; font-size:28px; color:rgba(201,90,109,.18)}
+		.preview::after{content:"❀"; position:absolute; bottom:14px; right:18px; font-size:28px; color:rgba(201,90,109,.18)}
+		.letter{max-width:760px;margin:0 auto;padding:34px 32px;border:1px solid #f1dfe2;border-radius:18px;background:linear-gradient(180deg,#fffdf9 0%,#fff8f4 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.8), 0 8px 24px rgba(140,80,98,.08);position:relative}
+		.letter::before{content:""; position:absolute; inset:12px; border:1px dashed rgba(201,90,109,.18); border-radius:14px; pointer-events:none}
+		.letter h1{margin:0 0 12px 0;color:var(--accent-2);font-size:30px;letter-spacing:.3px;font-family:Georgia, "Times New Roman", serif}
+		.meta{font-size:13px;color:var(--muted);margin-bottom:14px}
+		.body{white-space:pre-wrap;font-size:16px;line-height:1.8;color:#473847}
+		.signature{margin-top:24px;font-weight:700;color:var(--accent-2);font-style:italic}
+		@media (max-width:900px){body{padding:12px} .container{flex-direction:column} form{width:100%} .preview{padding:16px}}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<form id="letterForm">
+			<h2>Make a Letter</h2>
+			<p class="form-intro">Create a sweet, heartfelt, or playful message in seconds.</p>
+			<label>Recipient name<input id="recipient" type="text" placeholder="e.g. Alex"></label>
+			<label>Your name<input id="sender" type="text" placeholder="Your name"></label>
+		
+			<label>Custom message<textarea id="custom" placeholder="Write your message here..."></textarea></label>
+			<div class="actions">
+				<button type="button" id="generate">Generate Preview</button>
+				<button type="button" class="secondary" id="copy">Copy Text</button>
+				<button type="button" class="secondary" id="print">Print / Save as PDF</button>
+			</div>
+		</form>
+
+		<div class="preview" id="previewArea">
+			<div class="letter" id="letter">
+				<h1 id="letterTitle">A Letter</h1>
+				<div class="meta" id="letterMeta">To: —</div>
+				<div class="body" id="letterBody">Your message will appear here.</div>
+				<div class="signature" id="letterSignature">—</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		const recipient = document.getElementById('recipient');
+		const sender = document.getElementById('sender');
+	    const custom = document.getElementById('custom');
+		const generate = document.getElementById('generate');
+		const copyBtn = document.getElementById('copy');
+		const printBtn = document.getElementById('print');
+
+		const letterTitle = document.getElementById('letterTitle');
+		const letterMeta = document.getElementById('letterMeta');
+		const letterBody = document.getElementById('letterBody');
+		const letterSignature = document.getElementById('letterSignature');
+
+		function buildMessage(){
+			const r = recipient.value.trim() || 'there';
+			const s = sender.value.trim() || 'Someone who cares';
+			const customText = custom.value.trim();
+
+			let opening = `Dear ${r},\n\n`;
+			let middle = customText;
+			if(!middle){
+				middle = `I just wanted to tell you how much you mean to me. Your kindness and presence make every day brighter, and I truly cherish you.`;
+			}
+
+			const closing = `\n\nWith love,\n${s}`;
+
+			return opening + middle + closing;
+		}
+
+		function updatePreview(){
+			const r = recipient.value.trim() || '—';
+			letterTitle.textContent = `A Letter to ${r}`;
+			letterMeta.textContent = `To: ${r}`;
+			letterBody.textContent = buildMessage();
+			letterSignature.textContent = `— ${sender.value.trim() || 'Someone'}`;
+		}
+
+		generate.addEventListener('click', ()=>{ updatePreview(); });
+
+		copyBtn.addEventListener('click', ()=>{
+			const text = buildMessage();
+			navigator.clipboard.writeText(text).then(()=>{
+				copyBtn.textContent = 'Copied!';
+				setTimeout(()=>copyBtn.textContent='Copy Text',1200);
+			});
+		});
+
+		printBtn.addEventListener('click', ()=>{
+			// open printable window containing only the letter
+			const content = document.getElementById('letter').outerHTML;
+			const win = window.open('', '_blank', 'width=800,height=600');
+			win.document.write(`<!doctype html><html><head><title>Print Letter</title><meta charset="utf-8"><style>body{font-family:Georgia,serif;padding:40px;background:#fff} .letter{max-width:720px;margin:0 auto;border:1px solid #eee;padding:28px}</style></head><body>${content}</body></html>`);
+			win.document.close();
+			win.focus();
+			setTimeout(()=>{ win.print(); },300);
+		});
+
+		// live update on input
+		['input','change'].forEach(evt=>{
+			[recipient,sender,custom].forEach(el=>el.addEventListener(evt, updatePreview));
+		});
+
+		// initial preview
+		updatePreview();
+	</script>
+</body>
+</html>
